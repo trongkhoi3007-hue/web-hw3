@@ -2,10 +2,10 @@
 
 // ===== 데이터 및 저장 상태 =====
 
-// 입력: 없음 ⇒ 출력: 배열 (localStorage에 저장된 찜 영화 제목 목록)
+// liked : 없음 ⇒ 배열 (localStorage의 찜 영화 제목 목록)
 const liked = JSON.parse(localStorage.getItem("liked") || "[]");
 
-// 입력: 없음 ⇒ 출력: 없음 (현재 liked 배열을 localStorage에 저장)
+// saveLiked : 없음 ⇒ 없음 (현재 liked 배열을 localStorage에 저장)
 function saveLiked() {
   localStorage.setItem("liked", JSON.stringify(liked));
 }
@@ -79,7 +79,7 @@ function renderCards(list) {
       card.classList.add("no-poster");
       posterHtml = `<div class="poster-fallback">${m.title[0]}</div>`;
     } else {
-      posterHtml = `<img class="poster" src="${posterUrl(m.poster, "w342")}" alt="${m.title} 포스터">`;
+      posterHtml = `<img class="poster" src="${posterUrl(m.poster, "w342")}" alt="${m.title} 포스터" onerror="const c = this.closest('.card'); if (c) c.classList.add('no-poster'); const fb = document.createElement('div'); fb.className = 'poster-fallback'; fb.textContent = '${m.title[0]}'; this.replaceWith(fb);">`;
     }
 
     card.innerHTML = `
