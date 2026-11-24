@@ -1,4 +1,4 @@
-// data.js : 내 영화 5편 + 박스오피스 5편(총 10편) / 짠청코이(09) / hw3
+// data.js : 내 영화 5편 + 박스오피스 5편(총 10편) / 짠청코이(2594067) / hw3
 
 const movies = [
   // ===== 내 영화 (type: "mine") 5편 =====
@@ -56,57 +56,57 @@ const movies = [
   // ===== 박스오피스 (type: "boxoffice") 5편 =====
   {
     id: 6,
-    title: "극장판 귀멸의 칼날: 무한성편",
-    year: 2025,
-    date: "2025-07-18",
-    rating: 8.7,
-    type: "boxoffice",
-    rank: 1,
-    poster: "/s638yV17p4h0y5y2y6x7w8v9u0t.jpg",
-    overview: "귀살대와 혈귀의 본거지 무한성에서 펼쳐지는 치열한 최종 결전을 그린 극장판 시리즈."
-  },
-  {
-    id: 7,
-    title: "체인소 맨: 레제편",
-    year: 2025,
-    date: "2025-09-19",
-    rating: 8.5,
-    type: "boxoffice",
-    rank: 2,
-    poster: "/r537xU06o3g9x4x1x5w6v7u8t9s.jpg",
-    overview: "덴지 앞에 나타난 수수께끼의 소녀 레제와의 만남과 예측할 수 없는 전개를 담은 극장판."
-  },
-  {
-    id: 8,
     title: "주술회전 0",
     year: 2021,
     date: "2021-12-24",
     rating: 8.3,
     type: "boxoffice",
-    rank: 3,
+    rank: 1,
     poster: "/3faJ67FdeFQXyug8539HK8xZW9O.jpg",
     overview: "어린 시절 약속을 지키려 강력한 원령과 함께 살아가던 옷코츠 유타가 주술고전에 입학하며 시작되는 전일담."
   },
   {
-    id: 9,
+    id: 7,
     title: "스즈메의 문단속",
     year: 2022,
     date: "2022-11-11",
     rating: 8.1,
     type: "boxoffice",
-    rank: 4,
+    rank: 2,
     poster: "/vIeu8hmyPP4HLjpWLA9Pw6SOeo3.jpg",
     overview: "재앙을 부르는 문을 닫기 위해 일본 각지의 폐허를 여행하는 소녀 스즈메와 닫는 사제의 여정."
   },
   {
-    id: 10,
+    id: 8,
     title: "더 퍼스트 슬램덩크",
     year: 2022,
     date: "2022-12-03",
     rating: 8.6,
     type: "boxoffice",
-    rank: 5,
+    rank: 3,
     poster: "/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
     overview: "전국 제패를 꿈꾸는 북산고 농구부 5인방이 최강 산왕공고를 상대로 벌이는 운명의 경기를 그린 작품."
+  },
+  {
+    id: 9,
+    title: "센과 치히로의 행방불명",
+    year: 2001,
+    date: "2001-07-20",
+    rating: 8.5,
+    type: "boxoffice",
+    rank: 4,
+    poster: "/39wmItIWsg5sZMyRUHLKavRsTjV.jpg",
+    overview: "이사 가던 길에 우연히 들른 신들의 세계에서 돼지로 변해버린 부모님을 구하기 위해 치히로가 겪는 성장과 모험."
+  },
+  {
+    id: 10,
+    title: "기생충",
+    year: 2019,
+    date: "2019-05-30",
+    rating: 8.5,
+    type: "boxoffice",
+    rank: 5,
+    poster: "/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+    overview: "전원 백수인 기택네 가족이 부잣집 박사장네에 발을 들이면서 걷잡을 수 없는 사건에 휘말리는 이야기."
   }
 ];
