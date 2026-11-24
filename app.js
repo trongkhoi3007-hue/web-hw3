@@ -1,10 +1,20 @@
-// app.js : 실습과제 #3 출발선 키트(교수 제공, https://github.com/martin-yeo/web-hw3a) / 짠청코이 (2594067)
-// Step 0이 끝난 상태입니다. #2의 sortBy, search와 12주차 저장소의 posterUrl, renderCards만 있고 실행하는 줄은 없습니다.
+// app.js : 실습과제 #3 살아 움직이는 영화 보드 / 짠청코이 (2594067)
 
-// ===== 실습과제 #2와 12주차 저장소에서 가져온 함수 =====
+// ===== 데이터 및 저장 상태 =====
+
+// 입력: 없음 ⇒ 출력: 배열 (localStorage에 저장된 찜 영화 제목 목록)
+const liked = JSON.parse(localStorage.getItem("liked") || "[]");
+
+// 입력: 없음 ⇒ 출력: 없음 (현재 liked 배열을 localStorage에 저장)
+function saveLiked() {
+  localStorage.setItem("liked", JSON.stringify(liked));
+}
+
+// ===== 목록 가공 및 포스터 URL 함수 =====
 
 // posterUrl : 포스터 경로, 크기 ⇒ TMDB 이미지 주소(문자열)
-function posterUrl(path, size) {
+function posterUrl(path, size = "w342") {
+  if (!path) return "";
   return "https://image.tmdb.org/t/p/" + size + path;
 }
 
@@ -12,7 +22,7 @@ function posterUrl(path, size) {
 function sortBy(list, key, desc) {
   const copy = [...list];
   copy.sort((a, b) => {
-    if (typeof a[key] === "string") return a[key].localeCompare(b[key]);
+    if (typeof a[key] === "string") return a[key].localeCompare(b[key], "ko");
     return a[key] - b[key];
   });
   if (desc) copy.reverse();
@@ -25,98 +35,7 @@ function search(list, keyword) {
   return list.filter(m => m.title.toLowerCase().includes(k));
 }
 
-// renderCards : 영화 배열 ⇒ 보드에 카드 생성(반환값 없음)
-function renderCards(list) {
-  const board = document.querySelector(".board");
-  board.innerHTML = "";
-  for (const m of list) {
-    const card = document.createElement("article");
-    card.className = "card";
-    if (m.rating >= 8) {
-      card.classList.add("hot");
-    }
-
-    // Step 1 (나): 카드에 data-type, data-title 속성 붙이기(setAttribute)
-    card.setAttribute("data-type", m.type);
-    card.setAttribute("data-title", m.title);
-
-    const isLiked = liked.includes(m.id);
-    const likedClass = isLiked ? " liked" : "";
-
-    // Step 1 (다): 박스오피스 카드(m.type === "boxoffice")에만 순위 배지 <span class="rank">
-    const rankHtml = m.type === "boxoffice" && m.rank != null
-      ? `<span class="rank">${m.rank}</span>`
-      : "";
-
-    // Step 1 (라): m.poster가 null이면 card에 no-poster, <img> 대신 대체 표지 <div class="poster-fallback">
-    let posterHtml = "";
-    if (!m.poster) {
-      card.classList.add("no-poster");
-      posterHtml = `<div class="poster-fallback">${m.title}</div>`;
-    } else {
-      posterHtml = `<img class="poster" src="${posterUrl(m.poster, "w342")}" alt="${m.title} 포스터">`;
-    }
-
-    // Step 1 (가): 아래 카드 제목 <h2>를 <h3>으로(#1의 .info h3에 맞춤)
-    card.innerHTML = `
-      ${posterHtml}
-      ${rankHtml}
-      <span class="badge">${m.rating}</span>
-      <div class="info">
-        <h3>${m.title}</h3>
-        <p class="year">${m.year}</p>
-        <button type="button" class="like${likedClass}" data-id="${m.id}" aria-pressed="${isLiked}">♥</button>
-      </div>`;
-    board.appendChild(card);
-  }
-  document.getElementById("count").textContent = list.length + "편";
-}
-
-// ===== Step 1 ~ Step 5 추가 구현 =====
-
-const STORAGE_KEY = "web_hw3_liked_movies";
-let liked = loadLiked();
-
-// loadLiked : 없음 ⇒ 저장된 찜 영화 ID 배열
-function loadLiked() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    return [];
-  }
-}
-
-// saveLiked : 찜 영화 ID 배열 ⇒ 없음(localStorage 저장 및 찜 개수 갱신)
-function saveLiked(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  updateLikeCount();
-}
-
-// updateLikeCount : 없음 ⇒ 없음(#likeCount 숫자 갱신)
-function updateLikeCount() {
-  const el = document.getElementById("likeCount");
-  if (el) {
-    el.textContent = String(liked.length);
-  }
-}
-
-// toggleLike : 영화 ID ⇒ 갱신된 찜 배열
-function toggleLike(id) {
-  const exists = liked.includes(id);
-  liked = exists ? liked.filter(item => item !== id) : [...liked, id];
-  saveLiked(liked);
-  return liked;
-}
-
-// getSelectedType : 없음 ⇒ 선택된 보기 필터 값("all" | "mine" | "boxoffice")
-function getSelectedType() {
-  const checked = document.querySelector('#typeFilter input[name="type"]:checked');
-  return checked ? checked.value : "all";
-}
-
-// getView : 검색어, 보기 필터, 정렬 기준 ⇒ 필터 및 정렬이 적용된 새 영화 배열
+// getView : 검색어, 보기 필터, 정렬 기준 ⇒ 검색·필터·정렬이 적용된 새 영화 배열
 function getView(keyword, typeFilter, sortKey) {
   let result = search(movies, keyword || "");
 
@@ -124,16 +43,81 @@ function getView(keyword, typeFilter, sortKey) {
     result = result.filter(m => m.type === typeFilter);
   }
 
-  if (sortKey === "rating" || sortKey === "year") {
-    result = sortBy(result, sortKey, true);
-  } else if (sortKey === "title") {
-    result = sortBy(result, "title", false);
-  }
-
+  result = sortBy(result, sortKey, sortKey !== "title");
   return result;
 }
 
-// openDetail : 영화 객체 ⇒ 없음(#detailBody 채우고 #detail 모달 열기)
+// ===== 화면 렌더링 및 상세 대화상자 =====
+
+// renderCards : 영화 배열 ⇒ 없음 (보드에 카드 생성, 찜 개수 및 빈 상태 반영)
+function renderCards(list) {
+  const board = document.querySelector(".board");
+  const countEl = document.getElementById("count");
+  const likeCountEl = document.getElementById("likeCount") || document.getElementById("LikeCount");
+
+  board.innerHTML = "";
+
+  for (const m of list) {
+    const card = document.createElement("article");
+    card.className = "card";
+    if (Number(m.rating) >= 8) {
+      card.classList.add("hot");
+    }
+
+    card.setAttribute("data-type", m.type);
+    card.setAttribute("data-title", m.title);
+
+    const isLiked = liked.includes(m.title);
+    const likedClass = isLiked ? " liked" : "";
+
+    const rankHtml = m.type === "boxoffice" && m.rank != null
+      ? `<span class="rank">${m.rank}</span>`
+      : "";
+
+    let posterHtml = "";
+    if (!m.poster) {
+      card.classList.add("no-poster");
+      posterHtml = `<div class="poster-fallback">${m.title[0]}</div>`;
+    } else {
+      posterHtml = `<img class="poster" src="${posterUrl(m.poster, "w342")}" alt="${m.title} 포스터">`;
+    }
+
+    card.innerHTML = `
+      ${rankHtml}
+      <span class="badge">${m.rating}</span>
+      ${posterHtml}
+      <div class="info">
+        <h3>${m.title}</h3>
+        <p class="year">${m.year}</p>
+        <button type="button" class="like${likedClass}" data-title="${m.title}" aria-pressed="${isLiked}">♥</button>
+      </div>`;
+    board.appendChild(card);
+  }
+
+  if (countEl) {
+    countEl.textContent = list.length + "편";
+  }
+  if (likeCountEl) {
+    likeCountEl.textContent = String(liked.length);
+  }
+
+  board.classList.toggle("is-empty", list.length === 0);
+}
+
+// refresh : 없음 ⇒ 없음 (현재 입력·필터·정렬 상태로 목록 다시 그리기)
+function refresh() {
+  const qInput = document.getElementById("q");
+  const sortSelect = document.getElementById("sort");
+  const checkedType = document.querySelector('#typeFilter input[name="type"]:checked');
+
+  const keyword = qInput ? qInput.value : "";
+  const typeFilter = checkedType ? checkedType.value : "all";
+  const sortKey = sortSelect ? sortSelect.value : "rating";
+
+  renderCards(getView(keyword, typeFilter, sortKey));
+}
+
+// openDetail : 영화 객체 ⇒ 없음 (#detailBody 채우고 모달 열기)
 function openDetail(movie) {
   const dialog = document.getElementById("detail");
   const body = document.getElementById("detailBody");
@@ -141,19 +125,12 @@ function openDetail(movie) {
 
   const posterBlock = movie.poster
     ? `<img src="${posterUrl(movie.poster, "w500")}" alt="${movie.title} 포스터">`
-    : `<div class="poster-fallback">${movie.title}</div>`;
-
-  const rankText = movie.type === "boxoffice" && movie.rank != null
-    ? `<p>박스오피스 순위: ${movie.rank}위</p>`
-    : "";
+    : `<div class="poster-fallback">${movie.title[0]}</div>`;
 
   body.innerHTML = `
     ${posterBlock}
-    <h3>${movie.title}</h3>
-    <p>개봉연도: ${movie.year}</p>
-    <p>평점: ${movie.rating}</p>
-    <p>구분: ${movie.type === "mine" ? "내 영화" : "박스오피스"}</p>
-    ${rankText}
+    <h2>${movie.title}</h2>
+    <p>개봉일: ${movie.date} | 평점: ${movie.rating}</p>
     <p>${movie.overview || "줄거리 정보가 없습니다."}</p>
   `;
 
@@ -164,77 +141,63 @@ function openDetail(movie) {
   }
 }
 
-// refresh : 없음 ⇒ 없음(현재 검색·필터·정렬 상태로 보드와 빈 결과 상태 갱신)
-function refresh() {
-  const qInput = document.getElementById("q");
-  const sortSelect = document.getElementById("sort");
-  const board = document.querySelector(".board");
+// ===== 이벤트 리스너 등록(맨 아래 한 곳) =====
 
-  const keyword = qInput ? qInput.value : "";
-  const typeFilter = getSelectedType();
-  const sortKey = sortSelect ? sortSelect.value : "rating";
+const qInput = document.getElementById("q");
+const typeFilter = document.getElementById("typeFilter");
+const sortSelect = document.getElementById("sort");
+const board = document.querySelector(".board");
+const dialog = document.getElementById("detail");
+const closeBtn = document.getElementById("closeDetail");
 
-  const viewList = getView(keyword, typeFilter, sortKey);
-  renderCards(viewList);
-
-  if (board) {
-    board.classList.toggle("is-empty", viewList.length === 0);
-  }
+if (qInput) {
+  qInput.addEventListener("input", refresh);
+}
+if (typeFilter) {
+  typeFilter.addEventListener("change", refresh);
+}
+if (sortSelect) {
+  sortSelect.addEventListener("change", refresh);
 }
 
-// ===== 이벤트 리스너 모음(맨 아래 한 곳) =====
-function bindEvents() {
-  const qInput = document.getElementById("q");
-  const typeFilter = document.getElementById("typeFilter");
-  const sortSelect = document.getElementById("sort");
-  const board = document.querySelector(".board");
-  const dialog = document.getElementById("detail");
-  const closeBtn = document.getElementById("closeDetail");
+if (board) {
+  board.addEventListener("click", (event) => {
+    const likeBtn = event.target.closest(".like");
+    if (likeBtn) {
+      const card = likeBtn.closest(".card");
+      const title = likeBtn.getAttribute("data-title") || (card && card.getAttribute("data-title"));
+      if (!title) return;
 
-  if (qInput) {
-    qInput.addEventListener("input", refresh);
-  }
-  if (typeFilter) {
-    typeFilter.addEventListener("change", refresh);
-  }
-  if (sortSelect) {
-    sortSelect.addEventListener("change", refresh);
-  }
-
-  if (board) {
-    board.addEventListener("click", (event) => {
-      const likeBtn = event.target.closest(".like");
-      if (likeBtn) {
-        event.stopPropagation();
-        const rawId = likeBtn.dataset.id;
-        const numId = Number(rawId);
-        toggleLike(Number.isNaN(numId) ? rawId : numId);
-        refresh();
-        return;
-      }
-
-      const card = event.target.closest(".card");
-      if (card) {
-        const title = card.getAttribute("data-title");
-        const found = movies.find(m => m.title === title);
-        if (found) {
-          openDetail(found);
-        }
-      }
-    });
-  }
-
-  if (closeBtn && dialog) {
-    closeBtn.addEventListener("click", () => {
-      if (typeof dialog.close === "function") {
-        dialog.close();
+      const idx = liked.indexOf(title);
+      if (idx === -1) {
+        liked.push(title);
       } else {
-        dialog.removeAttribute("open");
+        liked.splice(idx, 1);
       }
-    });
-  }
+      saveLiked();
+      refresh();
+      return;
+    }
+
+    const card = event.target.closest(".card");
+    if (!card) return;
+
+    const title = card.getAttribute("data-title");
+    const found = movies.find(m => m.title === title);
+    if (found) {
+      openDetail(found);
+    }
+  });
 }
 
-updateLikeCount();
-bindEvents();
+if (closeBtn && dialog) {
+  closeBtn.addEventListener("click", () => {
+    if (typeof dialog.close === "function") {
+      dialog.close();
+    } else {
+      dialog.removeAttribute("open");
+    }
+  });
+}
+
 refresh();
