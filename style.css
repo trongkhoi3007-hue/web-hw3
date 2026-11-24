@@ -1,3 +1,4 @@
+
 :root {
   --bg: #141e30;
   --surface: #1f2b44;
@@ -9,6 +10,7 @@
   --gap: 20px;
 }
 
+/* 기본 */
 body {
   margin: 0;
   padding: 16px;
@@ -19,8 +21,10 @@ body {
 a { color: var(--accent); }
 h1, h2 { font-family: var(--font-title); font-weight: 400; }
 
+/* 폭 제한 */
 .top, .hero, main, footer { max-width: 1100px; margin: 0 auto; }
 
+/* 헤더 (7.1) */
 .top {
   display: flex;
   justify-content: space-between;
@@ -35,6 +39,9 @@ nav ul {
   padding: 0;
 }
 
+/* 히어로 (6.4) : 어두운 막 + 색 그러데이션(배경 그림 없음)
+   TMDB 배경 그림을 쓰려면 둘째 linear-gradient(...)를 url("https://image.tmdb.org/t/p/w1280/여기에_backdrop_path")로 바꿉니다
+   (backdrop_path는 TMDB 응답의 값, 6주차 안내문 필드 표) */
 .hero {
   background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
     linear-gradient(135deg, var(--accent), var(--surface));
@@ -47,15 +54,17 @@ nav ul {
   padding: 24px;
   border-radius: 12px;
   box-sizing: border-box;
-  margin-bottom: 16px;   
+  margin-bottom: 16px;   /* 바로 아래 툴바와 띄움 */
 }
 
+/* 보드 (7.2) : 기본 1열(미디어 쿼리에서 2열, 4열) */
 .board {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap);
 }
 
+/* 카드 (6주차) */
 .card {
   position: relative;
   border-radius: 12px;
@@ -78,6 +87,7 @@ nav ul {
 .info h3 { margin: 0 0 4px; }
 .info p { margin: 4px 0; }
 
+/* 배지 (6.5) : 평점 .badge는 오른쪽 위, 순위 .rank는 왼쪽 위(순위는 Step 1에서 박스오피스 카드에만) */
 .badge, .rank {
   position: absolute;
   top: 12px;
@@ -88,6 +98,7 @@ nav ul {
 .badge { right: 12px; background: var(--accent); color: var(--bg); }
 .rank { left: 12px; background: var(--warn); color: var(--text); }
 
+/* 대체 표지 : poster가 null인 카드(Step 1에서 .no-poster와 .poster-fallback을 붙임) */
 .card.no-poster .poster-fallback {
   aspect-ratio: 2 / 3;
   display: flex;
@@ -98,20 +109,26 @@ nav ul {
   background: linear-gradient(135deg, var(--accent), var(--surface));
 }
 
+/* 푸터 : TMDB 고지와 KOBIS 출처 */
 footer { margin-top: 40px; font-size: 0.85rem; }
 
+/* 미디어 쿼리 1 (7.3) : 600px 이상은 내비 가로 배치, 보드 2열 */
 @media (min-width: 600px) {
   nav ul { flex-direction: row; gap: 20px; }
   .board { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* 미디어 쿼리 2 : 1024px 이상은 보드 4열, 히어로 높이 60vh */
 @media (min-width: 1024px) {
   .board { grid-template-columns: repeat(4, 1fr); }
   .hero { min-height: 60vh; }
 }
 
+/* 11주차 : 수업 실습 단계 3(평점 8 이상 배지), 단계 4(툴바) */
 .card.hot .badge { background: crimson; color: #fff; }
+/* flex-wrap: wrap은 11주차 규칙에 더한 것 : 좁은 화면(360px)에서 툴바가 넘치지 않게 줄을 바꿉니다 */
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; color: #fff; }
+/* 12주차 : 수업 실습 단계 4(♥ 버튼), 단계 6(빈 결과 문구, 인접 형제 선택자 5.2절) */
 .like { border: none; background: none; font-size: 1.4rem; color: #bbb; cursor: pointer; }
 .like.liked { color: crimson; }
 .state-empty { display: none; color: #fff; }
